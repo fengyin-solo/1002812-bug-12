@@ -9,7 +9,7 @@
     <div class="stat-row">
       <article v-for="card in cards" :key="card.label" class="stat-card">
         <span class="stat-label">{{ card.label }}</span>
-        <strong class="stat-value">{{ card.value }}</strong>
+        <strong class="stat-value">{{ card.value }}<small v-if="card.unit"> {{ card.unit }}</small></strong>
       </article>
     </div>
     <table class="data-table">
@@ -34,7 +34,7 @@ import { onMounted, ref } from 'vue'
 import { fetchJson } from '@/api/client'
 
 type Overview = {
-  cards: { label: string; value: number }[]
+  cards: { label: string; value: number | string; unit?: string }[]
   modules: { name: string; created: number; pending: number; abnormal: number }[]
 }
 

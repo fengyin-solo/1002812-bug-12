@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from app.seed import SEED_ROWS
@@ -14,12 +15,18 @@ class Store:
         self._tables: dict[str, list[dict[str, Any]]] = {
             name: [dict(row) for row in rows] for name, rows in SEED_ROWS.items()
         }
+        # 看板附加指标：label -> 取数函数，每次请求实时重算（例如补植后的栽植面积）。
+        self._metrics: dict[str, Callable[[], dict[str, Any]]] = {}
 
     def module_names(self) -> list[str]:
         return sorted(self._tables)
 
     def rows(self, module: str) -> list[dict[str, Any]]:
         return self._tables.setdefault(module, [])
+
+    def register_metric(self, label: str, getter: Callable[[], dict[str, Any]]) -> None:
+        """注册一块看板指标；刷新看板时按最新明细实时取值。"""
+        self._metrics[label] = getter
 
     def find(self, module: str, entry_id: int) -> dict[str, Any] | None:
         for row in self.rows(module):
@@ -43,6 +50,11 @@ class Store:
             {"label": "待处理", "value": sum(int(item["pending"]) for item in modules)},
             {"label": "异常量", "value": sum(int(item["abnormal"]) for item in modules)},
         ]
+        # 业务指标随明细重算（如补植后栽植面积），不做缓存。
+        for label, getter in self._metrics.items():
+            metric = getter()
+            cards.append({"label": label, "value": metric.get("value", 0),
+                          "unit": metric.get("unit"), "hint": metric.get("hint")})
         return {"cards": cards, "modules": modules}
 
 

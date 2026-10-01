@@ -4,6 +4,7 @@ import Dashboard from '@/views/Dashboard.vue'
 const Plot = () => import('@/views/plot/index.vue')
 const Tree = () => import('@/views/tree/index.vue')
 const Shrub = () => import('@/views/shrub/index.vue')
+const ShrubDetail = () => import('@/views/shrub/detail.vue')
 const Lawn = () => import('@/views/lawn/index.vue')
 const Flower = () => import('@/views/flower/index.vue')
 const Pest = () => import('@/views/pest/index.vue')
@@ -29,6 +30,7 @@ const router = createRouter({
     { path: '/plot', name: 'plot', component: Plot },
     { path: '/tree', name: 'tree', component: Tree },
     { path: '/shrub', name: 'shrub', component: Shrub },
+    { path: '/shrub/:id', name: 'shrub-detail', component: ShrubDetail },
     { path: '/lawn', name: 'lawn', component: Lawn },
     { path: '/flower', name: 'flower', component: Flower },
     { path: '/pest', name: 'pest', component: Pest },
