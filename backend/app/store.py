@@ -43,7 +43,17 @@ class Store:
             {"label": "待处理", "value": sum(int(item["pending"]) for item in modules)},
             {"label": "异常量", "value": sum(int(item["abnormal"]) for item in modules)},
         ]
-        return {"cards": cards, "modules": modules}
+        # 灌木在养面积与补植面积始终由补植明细现场重算，刷新看板即可看到最新结果。
+        shrub_stats = self.shrub_summary()
+        cards.append({"label": "灌木在养面积(㎡)", "value": shrub_stats["在养面积"]})
+        cards.append({"label": "累计补植面积(㎡)", "value": shrub_stats["补植面积合计"]})
+        return {"cards": cards, "modules": modules, "shrub": shrub_stats}
+
+    def shrub_summary(self) -> dict[str, object]:
+        """委托灌木服务按补植明细重算面积；惰性导入避免服务层与仓库层循环依赖。"""
+        from app.services.shrub import ShrubService
+
+        return ShrubService().stats()
 
 
 store = Store()
